@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,6 +28,8 @@ class _HomeState extends State<Home> {
   String _resultado = "Informe os valores!";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   double _opacity = 0.0;
+  double _gasolina = 0.0;
+  double _alcool = 0.0;
 
   void limparCampos() {
     _gasolinaController.text = "";
@@ -34,6 +37,8 @@ class _HomeState extends State<Home> {
     setState(() {
       _resultado = "Informe os valores!";
       _opacity = 0.0;
+      _gasolina = 0.0;
+      _alcool = 0.0;
     });
   }
 
@@ -63,6 +68,8 @@ class _HomeState extends State<Home> {
       }
 
       _opacity = 1.0;
+      _gasolina = gasolina;
+      _alcool = alcool;
     });
   }
 
@@ -89,10 +96,9 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(
-                    top: 40.0), // Aqui adicionamos o padding no topo
+                padding: const EdgeInsets.only(top: 40.0),
                 child: Icon(
-                  FontAwesomeIcons.gasPump, // Ícone de carro
+                  FontAwesomeIcons.gasPump,
                   size: 100.0,
                   color: Colors.black,
                 ),
@@ -139,8 +145,7 @@ class _HomeState extends State<Home> {
                       "Calcular",
                       style: TextStyle(color: Colors.white, fontSize: 25),
                     ),
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   ),
                 ),
               ),
@@ -156,18 +161,32 @@ class _HomeState extends State<Home> {
                       "Limpar",
                       style: TextStyle(color: Colors.black, fontSize: 25),
                     ),
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                   ),
                 ),
               ),
               AnimatedOpacity(
                 opacity: _opacity,
                 duration: Duration(seconds: 1),
-                child: Text(
-                  _resultado,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red, fontSize: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      _resultado,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.red, fontSize: 20),
+                    ),
+                    Container(
+                      height: 300,
+                      padding: EdgeInsets.all(20),
+                      child: PieChart(
+                        PieChartData(
+                          sectionsSpace: 0,
+                          centerSpaceRadius: 40,
+                          sections: showingSections(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -175,5 +194,26 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  List<PieChartSectionData> showingSections() {
+    double total = _gasolina + _alcool;
+    double gasolinaPercentage = (_gasolina / total) * 100;
+    double alcoolPercentage = (_alcool / total) * 100;
+
+    return [
+      PieChartSectionData(
+        color: Colors.blue,
+        value: gasolinaPercentage,
+        title: 'Gasolina\n${gasolinaPercentage.toStringAsFixed(1)}%',
+        radius: 100,
+      ),
+      PieChartSectionData(
+        color: Colors.green,
+        value: alcoolPercentage,
+        title: 'Álcool\n${alcoolPercentage.toStringAsFixed(1)}%',
+        radius: 100,
+      ),
+    ];
   }
 }
